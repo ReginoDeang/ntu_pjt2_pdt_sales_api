@@ -73,9 +73,9 @@ jobs:
           name: Build Spring Boot App
           command: ./mvnw clean package -DskipTests
       - docker/build:
-          image: lohcd/pdt_sales:1.0
+          image: reginodeang/pdt_sales:1.0
       - docker/push:
-          image: lohcd/pdt_sales:1.0
+          image: reginodeang/pdt_sales:1.0
 
 workflows:
   version: 2
