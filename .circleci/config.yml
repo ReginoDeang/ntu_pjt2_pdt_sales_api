@@ -12,7 +12,7 @@ executors:
 
 # Set JAVA_HOME
 env:
-  - JAVA_HOME: /home/regino_deang/.sdkman/candidates/java/current/bin/java  # Update the path to your Java installation
+  JAVA_HOME: /home/regino_deang/.sdkman/candidates/java/current/bin/java  # Update the path to your Java installation
 
 # Define jobs
 jobs:
@@ -22,15 +22,14 @@ jobs:
       - checkout
       - run:
           name: Set JAVA_HOME
-          command: |
-            echo 'export JAVA_HOME="/home/regino_deang/.sdkman/candidates/java/current"' >> $BASH_ENV
+          command: echo 'export JAVA_HOME="/home/regino_deang/.sdkman/candidates/java/current"' >> $BASH_ENV
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
       - run:
           name: Build Spring Boot App
           command: |
-            source $BASH_ENV  # Source the updated environment
+            source $BASH_ENV
             ./mvnw clean package -DskipTests
             mv target/pdt_sales-0.0.1-SNAPSHOT.jar app.jar
 
@@ -107,6 +106,7 @@ workflows:
       - build-and-push:
           requires:
             - test
+
 
 
 
