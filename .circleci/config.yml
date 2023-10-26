@@ -41,7 +41,7 @@ jobs:
   synk_scan:
     executor: default-executor
     environment:
-      IMAGE_NAME: reginodeang/pdt_sales
+      IMAGE_NAME: reginodeang/pdt_sales_image
 
     steps:
       - checkout
@@ -85,7 +85,7 @@ jobs:
             name: Docker Hub Login
             command: docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
             environment:
-              DOCKERHUB_USERNAME: reginodeang
+              DOCKERHUB_USERNAME: reginodeangjr@gmail.com
               DOCKERHUB_PASSWORD: darkkn1ght
         - run:
             name: Debug Info
@@ -96,7 +96,7 @@ jobs:
             name: Build and Push Docker Images
             command: |
               docker-compose build
-              docker-compose push reginodeang/pdt_sales
+              docker-compose push reginodeang/pdt_sales_image
 
 workflows:
   version: 2
