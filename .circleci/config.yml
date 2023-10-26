@@ -12,7 +12,7 @@ executors:
 
 # Set JAVA_HOME
 env:
-  JAVA_HOME: /usr/share/java /home/regino_deang/.sdkman/candidates/java/17.0.8-tem/bin/java
+  - JAVA_HOME: /home/regino_deang/.sdkman/candidates/java/current/bin/java  # Update the path to your Java installation
 
 # Define jobs
 jobs:
@@ -21,14 +21,16 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Set JAVA_HOME
+          command: |
+            echo 'export JAVA_HOME="/home/regino_deang/.sdkman/candidates/java/current"' >> $BASH_ENV
+      - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
       - run:
-          name: Set JAVA_HOME
-          command: echo "export JAVA_HOME=$JAVA_HOME" >> $BASH_ENV
-      - run:
           name: Build Spring Boot App
           command: |
+            source $BASH_ENV  # Source the updated environment
             ./mvnw clean package -DskipTests
             mv target/pdt_sales-0.0.1-SNAPSHOT.jar app.jar
 
@@ -39,6 +41,7 @@ jobs:
       - run:
           name: Run 8 Spring Boot Unit Tests in 2 Java Files
           command: |
+            source $BASH_ENV
             mvn test
 
   synk_scan:
@@ -52,11 +55,10 @@ jobs:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
       - run:
-          name: Set JAVA_HOME
-          command: echo "export JAVA_HOME=$JAVA_HOME" >> $BASH_ENV
-      - run:
           name: Build Spring Boot App
-          command: ./mvnw clean package -DskipTests
+          command: |
+            source $BASH_ENV
+            ./mvnw clean package -DskipTests
       - save_cache:
           key: app-jar-{{ checksum "pom.xml" }}
           paths:
@@ -65,7 +67,9 @@ jobs:
           key: app-jar-{{ checksum "pom.xml" }}
       - run:
           name: Build Docker image
-          command: docker build -t $IMAGE_NAME .
+          command: |
+            source $BASH_ENV
+            docker build -t $IMAGE_NAME .
       - snyk/scan:
           docker-image-name: $IMAGE_NAME
           severity-threshold: high
@@ -80,11 +84,10 @@ jobs:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
       - run:
-          name: Set JAVA_HOME
-          command: echo "export JAVA_HOME=$JAVA_HOME" >> $BASH_ENV
-      - run:
           name: Build Spring Boot App
-          command: ./mvnw clean package -DskipTests
+          command: |
+            source $BASH_ENV
+            ./mvnw clean package -DskipTests
       - docker/build:
           image: reginodeang/pdt_sales:1.0
       - docker/push:
@@ -104,6 +107,7 @@ workflows:
       - build-and-push:
           requires:
             - test
+
 
 
 
