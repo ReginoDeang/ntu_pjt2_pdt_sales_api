@@ -71,46 +71,11 @@ jobs:
           docker-image-name: $IMAGE_NAME
           severity-threshold: high
 
-    
-  # build-and-push:
-  #   executor: default-executor  # Use a Docker executor
-  #   steps:
-  #     - setup_remote_docker
-  #     - checkout
-
-  #     - run:
-  #         name: Update mvnw permissions
-  #         command: chmod +x ./mvnw
-
-  #     - run:
-  #         name: Build Spring Boot App
-  #         command: ./mvnw clean package -DskipTests
-
-  #     - save_cache:
-  #         key: app-jar-{{ checksum "pom.xml" }}
-  #         paths:
-  #           - ./target/pdt_sales-0.0.1-SNAPSHOT.jar
-
-  #     - restore_cache:
-  #         key: app-jar-{{ checksum "pom.xml" }}
-
-  #     # Use the docker/build command to build your Docker image
-  #     - docker/build:
-  #         image: reginodeangpdt_sales:1.0
-
-  #     # Push the Docker image to Docker Hub using docker/push
-  #     - docker/push:
-  #         image: reginodeang/pdt_sales:1.0  # Push the same image you built
-
   build-and-push:
     executor: default-executor  # Use a Docker executor
     steps:
       - setup_remote_docker
       - checkout
-
-      - run:
-          name: Define IMAGE_NAME variable
-          command: echo "export IMAGE_NAME=reginodeang/pdt_sales:1.0" >> $BASH_ENV
 
       - run:
           name: Update mvnw permissions
@@ -119,10 +84,6 @@ jobs:
       - run:
           name: Build Spring Boot App
           command: ./mvnw clean package -DskipTests
-
-      - run:
-          name: Build Docker image
-          command: docker build -t $IMAGE_NAME .
 
       - save_cache:
           key: app-jar-{{ checksum "pom.xml" }}
@@ -133,10 +94,19 @@ jobs:
           key: app-jar-{{ checksum "pom.xml" }}
 
       - run:
-          name: Push Docker image
-          command: docker push $IMAGE_NAME
+          name: Docker Hub Login
+          command: docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+          environment:
+            DOCKERHUB_USERNAME: reginodeang
+            DOCKERHUB_PASSWORD: darkkn1ght
 
+      # Use the docker/build command to build your Docker image
+      - docker/build:
+          image: lohcd/pdt_sales:1.0
 
+      # Push the Docker image to Docker Hub using docker/push
+      - docker/push:
+          image: lohcd/pdt_sales:1.0  # Push the same image you built
 
 workflows:
   version: 2
@@ -152,6 +122,7 @@ workflows:
       - build-and-push:
           requires:
             - test
+
 
 
 
