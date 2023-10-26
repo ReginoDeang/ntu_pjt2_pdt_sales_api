@@ -95,10 +95,8 @@ jobs:
 
       - run:
           name: Docker Hub Login
-          command: docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-          environment:
-            DOCKERHUB_USERNAME: reginodeang
-            DOCKERHUB_PASSWORD: darkkn1ght
+          command: docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+
 
       # Use the docker/build command to build your Docker image
       - docker/build:
