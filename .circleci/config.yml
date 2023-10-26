@@ -10,6 +10,11 @@ executors:
     docker:
       - image: cimg/openjdk:17.0.8
 
+# Set JAVA_HOME
+env:
+  - JAVA_HOME: /home/regino_deang/.sdkman/candidates/java/current/bin/java  # Update the path to your Java installation
+
+
 # Define jobs
 jobs:
   build:
@@ -19,6 +24,9 @@ jobs:
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
+      - run:
+          name: Set JAVA_HOME
+          command: echo "export JAVA_HOME=$JAVA_HOME" >> $BASH_ENV
       - run:
           name: Build Spring Boot App
           command: |
