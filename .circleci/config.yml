@@ -71,38 +71,35 @@ jobs:
           docker-image-name: $IMAGE_NAME
           severity-threshold: high
 
-  # build-and-push:
-  #   executor: default-executor
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Build and Push Docker Images
-  #         command: |
-  #           docker-compose build
-  #           docker-compose push reginodeang/pdt_sales
+          
+build-and-push:
+  executor: default-executor
+  steps:
+    - checkout
+    - run:
+        name: Start Docker Daemon
+        command: sudo service docker start
+    - run:
+        name: Add User to Docker Group
+        command: sudo usermod -aG docker $USER
+    - run:
+        name: Docker Hub Login
+        command: docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+      environment:
+        DOCKERHUB_USERNAME: $DOCKERHUB_USERNAME
+        DOCKERHUB_PASSWORD: $DOCKERHUB_PASSWORD
+    - run:
+        name: Debug Info
+        command: |
+          sudo service docker status
+          groups
+    - run:
+        name: Build and Push Docker Images
+        command: |
+          docker-compose build
+          docker-compose push reginodeang/pdt_sales
 
-  build-and-push:
-    executor: default-executor
-    steps:
-      - checkout
-      - run:
-          name: Start Docker Daemon
-          command: sudo service docker start
-      - run:
-          name: Add User to Docker Group
-          command: sudo usermod -aG docker $USER
-      - run:
-          name: Debug Info
-          command: |
-            sudo service docker status
-            groups
-      - run:
-          name: Build and Push Docker Images
-          command: |
-            docker-compose build
-            docker-compose push reginodeang/pdt_sales
          
-
 
 workflows:
   version: 2
@@ -119,5 +116,4 @@ workflows:
           requires:
             - test
 
-# try
 
