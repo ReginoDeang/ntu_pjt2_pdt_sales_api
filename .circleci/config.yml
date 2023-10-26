@@ -10,25 +10,21 @@ executors:
     docker:
       - image: cimg/openjdk:17.0.8
 
-# define jobs
+# Define jobs
 jobs:
-  build: # Define the 'build' job
+  build:
     executor: default-executor
     steps:
-      - checkout  # Check out your code from version control
-      
-      # Add a step to update the permissions of the mvnw file
+      - checkout
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
-      
       - run:
           name: Build Spring Boot App
-          # Compile and package your Spring Boot app with Maven
           command: |
             ./mvnw clean package -DskipTests
             mv target/pdt_sales-0.0.1-SNAPSHOT.jar app.jar
-      
+
   test:
     executor: default-executor
     steps:
@@ -36,70 +32,50 @@ jobs:
       - run:
           name: Run 8 Spring Boot Unit Tests in 2 Java Files
           command: |
-            mvn test 
+            mvn test
 
   synk_scan:
     executor: default-executor
     environment:
-      IMAGE_NAME: reginodeang/pdt_sales_image
-
+      IMAGE_NAME: lohcd/pdt_sales
     steps:
       - checkout
       - setup_remote_docker
-
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
-
       - run:
           name: Build Spring Boot App
           command: ./mvnw clean package -DskipTests
-
       - save_cache:
           key: app-jar-{{ checksum "pom.xml" }}
           paths:
             - ./target/pdt_sales-0.0.1-SNAPSHOT.jar
-
       - restore_cache:
           key: app-jar-{{ checksum "pom.xml" }}
-
       - run:
           name: Build Docker image
-          command: docker build -t reginodeang/pdt_sales_image .
-
+          command: docker build -t $IMAGE_NAME .
       - snyk/scan:
-          docker-image-name: reginodeang/pdt_sales_image
+          docker-image-name: $IMAGE_NAME
           severity-threshold: high
 
   build-and-push:
-    executor: default-executor
+    executor: docker/docker
     steps:
+      - setup_remote_docker
       - checkout
-      - setup_remote_docker:
-          version: 20.10.11  # Use the appropriate Docker version
-          privileged: true
+      - docker/check
       - run:
-          name: Start Docker Daemon
-          command: sudo service docker start
+          name: Update mvnw permissions
+          command: chmod +x ./mvnw
       - run:
-          name: Add User to Docker Group
-          command: sudo usermod -aG docker $USER
-      - run:
-          name: Docker Hub Login
-          command: docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-          environment:
-            DOCKERHUB_USERNAME: reginodeangjr@gmail.com
-            DOCKERHUB_PASSWORD: darkkn1ght
-      - run:
-          name: Debug Info
-          command: |
-            sudo service docker status
-            groups
-      - run:
-          name: Build and Push Docker Images
-          command: |
-            docker-compose build
-            docker-compose push reginodeang/pdt_sales_image
+          name: Build Spring Boot App
+          command: ./mvnw clean package -DskipTests
+      - docker/build:
+          image: lohcd/pdt_sales:1.0
+      - docker/push:
+          image: lohcd/pdt_sales:1.0
 
 workflows:
   version: 2
@@ -115,6 +91,7 @@ workflows:
       - build-and-push:
           requires:
             - test
+
 
 
 
