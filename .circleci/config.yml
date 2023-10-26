@@ -103,11 +103,11 @@ jobs:
       # Use the docker/build command to build your Docker image
       - docker/build:
           image: reginodeang/pdt_sales
-          tag: 1.0
+          # tag: 1.0
       # Push the Docker image to Docker Hub using docker/push
       - docker/push:
           image: reginodeang/pdt_sales  # Push the same image you built
-          tag: 1.0
+          # tag: 1.0
 
 workflows:
   version: 2
