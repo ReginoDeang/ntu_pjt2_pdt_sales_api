@@ -10,29 +10,25 @@ executors:
     docker:
       - image: cimg/openjdk:17.0.8
 
-# Set JAVA_HOME
-env:
-  JAVA_HOME: /home/regino_deang/.sdkman/candidates/java/current/bin/java  # Update the path to your Java installation
-
-# Define jobs
+# define jobs
 jobs:
-  build:
+  build: # Define the 'build' job
     executor: default-executor
     steps:
-      - checkout
-      - run:
-          name: Set JAVA_HOME
-          command: echo 'export JAVA_HOME="/home/regino_deang/.sdkman/candidates/java/current"' >> $BASH_ENV
+      - checkout  # Check out your code from version control
+      
+      # Add a step to update the permissions of the mvnw file
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
+      
       - run:
           name: Build Spring Boot App
+          # Compile and package your Spring Boot app with Maven
           command: |
-            source $BASH_ENV
             ./mvnw clean package -DskipTests
             mv target/pdt_sales-0.0.1-SNAPSHOT.jar app.jar
-
+      
   test:
     executor: default-executor
     steps:
@@ -40,57 +36,73 @@ jobs:
       - run:
           name: Run 8 Spring Boot Unit Tests in 2 Java Files
           command: |
-            source $BASH_ENV
-            mvn test
+            mvn test 
 
   synk_scan:
     executor: default-executor
     environment:
       IMAGE_NAME: lohcd/pdt_sales
+
     steps:
       - checkout
       - setup_remote_docker
+
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
+
       - run:
           name: Build Spring Boot App
-          command: |
-            source $BASH_ENV
-            ./mvnw clean package -DskipTests
+          command: ./mvnw clean package -DskipTests
+
       - save_cache:
           key: app-jar-{{ checksum "pom.xml" }}
           paths:
             - ./target/pdt_sales-0.0.1-SNAPSHOT.jar
+
       - restore_cache:
           key: app-jar-{{ checksum "pom.xml" }}
+
       - run:
           name: Build Docker image
-          command: |
-            source $BASH_ENV
-            docker build -t $IMAGE_NAME .
+          command: docker build -t $IMAGE_NAME .
+
       - snyk/scan:
           docker-image-name: $IMAGE_NAME
           severity-threshold: high
 
+    
   build-and-push:
-    executor: docker/docker
+    executor: default-executor  # Use a Docker executor
     steps:
       - setup_remote_docker
       - checkout
-      - docker/check
+
       - run:
           name: Update mvnw permissions
           command: chmod +x ./mvnw
+
       - run:
           name: Build Spring Boot App
-          command: |
-            source $BASH_ENV
-            ./mvnw clean package -DskipTests
+          command: ./mvnw clean package -DskipTests
+
+      - save_cache:
+          key: app-jar-{{ checksum "pom.xml" }}
+          paths:
+            - ./target/pdt_sales-0.0.1-SNAPSHOT.jar
+
+      - restore_cache:
+          key: app-jar-{{ checksum "pom.xml" }}
+
+      # Use the docker/build command to build your Docker image
       - docker/build:
-          image: reginodeang/pdt_sales:1.0
+          image: reginodeangpdt_sales:1.0
+
+      # Push the Docker image to Docker Hub using docker/push
       - docker/push:
-          image: reginodeang/pdt_sales:1.0
+          image: reginodeang/pdt_sales:1.0  # Push the same image you built
+
+
 
 workflows:
   version: 2
@@ -106,7 +118,6 @@ workflows:
       - build-and-push:
           requires:
             - test
-
 
 
 
