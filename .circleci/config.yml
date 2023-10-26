@@ -84,9 +84,9 @@ jobs:
       - run:
           name: Docker Hub Login
           command: docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-        environment:
-          DOCKERHUB_USERNAME: reginodeangjr@gmail.com
-          DOCKERHUB_PASSWORD: darkkn1ght
+          environment:
+            DOCKERHUB_USERNAME: reginodeangjr@gmail.com
+            DOCKERHUB_PASSWORD: darkkn1ght
       - run:
           name: Debug Info
           command: |
@@ -112,4 +112,5 @@ workflows:
       - build-and-push:
           requires:
             - test
+
 
