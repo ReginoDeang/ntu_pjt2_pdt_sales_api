@@ -75,6 +75,9 @@ jobs:
     executor: default-executor
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.11  # Use the appropriate Docker version
+          privileged: true
       - run:
           name: Start Docker Daemon
           command: sudo service docker start
