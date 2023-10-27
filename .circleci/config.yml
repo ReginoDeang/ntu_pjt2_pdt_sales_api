@@ -151,7 +151,6 @@ jobs:
             heroku container:push web -a pjt2-pdt-sales
             heroku container:release web -a pjt2-pdt-sales
         #The push command pushes the image to heroku's container registry
-        #The release command deploys the image from heroku's container registry
 
 
 workflows:
