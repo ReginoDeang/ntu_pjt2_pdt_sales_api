@@ -146,7 +146,7 @@ workflows:
       - build-and-push:
           requires:
             - test
-      - deploy-to-heroku:
+      - heroku-deploy:
           requires:
             - build-and-push
 
