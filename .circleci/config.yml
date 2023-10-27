@@ -152,7 +152,7 @@ workflows:
       - build-and-push:
           requires:
             - test
-      - heroku-deploy:
+      - deploy:
           requires:
             - build-and-push
 
