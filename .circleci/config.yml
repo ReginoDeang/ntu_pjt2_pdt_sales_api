@@ -115,6 +115,9 @@ jobs:
     executor: default-executor
     steps:
       - checkout
+      - run:
+          name: Install Heroku CLI
+          command: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
       - heroku/install
       - run:
           name: Heroku Login
