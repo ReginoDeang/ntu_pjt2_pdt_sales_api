@@ -137,20 +137,44 @@ jobs:
   #         name: Heroku Release
   #         command: heroku container:release web -a pjt2-pdt-sales
 
-  deploy:
-    docker:
-      - image: cimg/node:16.10
+  # deploy:
+  #   docker:
+  #     - image: cimg/node:16.10
+  #   steps:
+  #     - setup_remote_docker
+  #     - heroku/install #installs heroku cli for our run command
+  #     - checkout
+  #     - run:
+  #         name: Heroku Container Push #the name of the group of commands we are running
+  #         command: |
+  #           heroku container:login
+  #           heroku container:push web -a pjt2-pdt-sales
+  #           heroku container:release web -a pjt2-pdt-sales
+  #       #The push command pushes the image to heroku's container registry
+
+    deploy:
+    executor: default-executor
     steps:
       - setup_remote_docker
-      - heroku/install #installs heroku cli for our run command
+      - heroku/install
       - checkout
       - run:
-          name: Heroku Container Push #the name of the group of commands we are running
+          name: Login to Heroku Container Registry
+          command: heroku container:login
+
+      - run:
+          name: Pull Spring Boot App Image from Docker Hub
+          command: docker pull reginodeang/pdt_sales:v1.0
+
+      - run:
+          name: Tag and Push the Image to Heroku Container Registry
           command: |
-            heroku container:login
-            heroku container:push web -a pjt2-pdt-sales
-            heroku container:release web -a pjt2-pdt-sales
-        #The push command pushes the image to heroku's container registry
+            docker tag reginodeang/pdt_sales:v1.0 registry.heroku.com/pjt2-pdt-sales/web
+            docker push registry.heroku.com/pjt2-pdt-sales/web
+
+      - run:
+          name: Release the Heroku app
+          command: heroku container:release web -a pjt2-pdt-sales      
 
 
 workflows:
