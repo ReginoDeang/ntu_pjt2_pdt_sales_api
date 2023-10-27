@@ -111,7 +111,7 @@ jobs:
           # tag: 1.0
           # try
 
-  heroku-deploy:
+  deploy:
     executor: default-executor
     steps:
       - checkout
@@ -126,6 +126,7 @@ jobs:
           name: Heroku Container Login
           command: |
             echo "HEROKU_API_KEY: $HEROKU_API_KEY"
+            echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
           # command: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
       - run:
           name: Build and Push Docker Image to Heroku
