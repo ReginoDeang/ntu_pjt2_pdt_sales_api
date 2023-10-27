@@ -111,31 +111,47 @@ jobs:
           # tag: 1.0
           # try
 
+  # deploy:
+  #   executor: default-executor
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Install Heroku CLI
+  #         command: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+  #     - heroku/install
+  #     - run:
+  #         name: Heroku Login
+  #         command: heroku login -i
+  #     - run:
+  #         name: Heroku Container Login
+  #         command: |
+  #           echo "HEROKU_API_KEY: $HEROKU_API_KEY"
+  #           echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+  #         # command: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+  #     - run:
+  #         name: Build and Push Docker Image to Heroku
+  #         command: |
+  #           docker build -t registry.heroku.com/pjt2-pdt-sales/web .
+  #           docker push registry.heroku.com/pjt2-pdt-sales/web
+  #     - run:
+  #         name: Heroku Release
+  #         command: heroku container:release web -a pjt2-pdt-sales
+
   deploy:
-    executor: default-executor
+    docker:
+      - image: cimg/node:16.10
     steps:
+      - setup_remote_docker
+      - heroku/install #installs heroku cli for our run command
       - checkout
       - run:
-          name: Install Heroku CLI
-          command: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
-      - heroku/install
-      - run:
-          name: Heroku Login
-          command: heroku login -i
-      - run:
-          name: Heroku Container Login
+          name: Heroku Container Push #the name of the group of commands we are running
           command: |
-            echo "HEROKU_API_KEY: $HEROKU_API_KEY"
-            echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
-          # command: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
-      - run:
-          name: Build and Push Docker Image to Heroku
-          command: |
-            docker build -t registry.heroku.com/pjt2-pdt-sales/web .
-            docker push registry.heroku.com/pjt2-pdt-sales/web
-      - run:
-          name: Heroku Release
-          command: heroku container:release web -a pjt2-pdt-sales
+            heroku container:login
+            heroku container:push web -a pjt2-pdt-sales
+            heroku container:release web -a pjt2-pdt-sales
+        #The push command pushes the image to heroku's container registry
+        #The release command deploys the image from heroku's container registry
 
 
 workflows:
