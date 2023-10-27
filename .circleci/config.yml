@@ -4,6 +4,7 @@ orbs:
   docker: circleci/docker@2.4.0
   snyk: snyk/snyk@2.0.1
   maven: circleci/maven@1.4.1
+  heroku: circleci/heroku@2.0.0
 
 executors:
   default-executor:
@@ -109,6 +110,27 @@ jobs:
           image: reginodeang/pdt_sales  # Push the same image you built
           # tag: 1.0
           # try
+
+  heroku-deploy:
+    executor: default-executor
+    steps:
+      - checkout
+      - heroku/install # Install the Heroku CLI
+      - run:
+          name: Heroku Login
+          command: heroku login -i
+      - run:
+          name: Heroku Container Login
+          command: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+      - run:
+          name: Build and Push Docker Image to Heroku
+          command: |
+            docker build -t registry.heroku.com/your-heroku-app/web .
+            docker push registry.heroku.com/your-heroku-app/web
+      - run:
+          name: Heroku Release
+          command: heroku container:release web -a pjt2-pdt-sales
+
 
 workflows:
   version: 2
