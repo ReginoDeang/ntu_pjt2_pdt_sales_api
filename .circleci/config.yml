@@ -124,7 +124,9 @@ jobs:
           command: heroku login -i
       - run:
           name: Heroku Container Login
-          command: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+          command: |
+            echo "HEROKU_API_KEY: $HEROKU_API_KEY"
+          # command: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
       - run:
           name: Build and Push Docker Image to Heroku
           command: |
