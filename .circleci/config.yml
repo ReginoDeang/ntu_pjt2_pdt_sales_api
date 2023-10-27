@@ -115,7 +115,7 @@ jobs:
     executor: default-executor
     steps:
       - checkout
-      - heroku/install # Install the Heroku CLI
+      - heroku/install
       - run:
           name: Heroku Login
           command: heroku login -i
@@ -125,8 +125,8 @@ jobs:
       - run:
           name: Build and Push Docker Image to Heroku
           command: |
-            docker build -t registry.heroku.com/your-heroku-app/web .
-            docker push registry.heroku.com/your-heroku-app/web
+            docker build -t registry.heroku.com/pjt2-pdt-sales/web .
+            docker push registry.heroku.com/pjt2-pdt-sales/web
       - run:
           name: Heroku Release
           command: heroku container:release web -a pjt2-pdt-sales
