@@ -152,7 +152,7 @@ jobs:
   #           heroku container:release web -a pjt2-pdt-sales
   #       #The push command pushes the image to heroku's container registry
 
-    deploy:
+  deploy:
     executor: default-executor
     steps:
       - setup_remote_docker
